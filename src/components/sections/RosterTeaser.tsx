@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
-import { m } from "framer-motion";
+import Reveal from "@/components/motion/Reveal";
 
 const ROLE_COLORS: Record<string, string> = {
   Duelist:    "#E74C3C",
@@ -28,69 +28,65 @@ export default function RosterTeaser() {
   const locale = useLocale();
 
   return (
-    <section style={{ padding: "80px 0", borderBottom: "1px solid #1F1F1F", background: "#1A1A1A" }}>
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "40px" }} className="md:flex-row md:items-end md:justify-between">
+    <section className="section">
+      <div className="container-x">
+        <Reveal className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between" style={{ marginBottom: "clamp(32px, 4vw, 48px)" }}>
           <div>
             <span className="eyebrow">{t("eyebrow")}</span>
-            <h2 className="font-heading font-black uppercase text-white leading-[0.95]" style={{ fontSize: "clamp(28px, 5vw, 48px)" }}>
+            <h2 className="section-title">
               {t("title")}
             </h2>
-            <p style={{ marginTop: "8px", fontSize: "14px", color: "#888888" }}>{t("subtitle")}</p>
+            <p className="lead" style={{ marginTop: "12px" }}>{t("subtitle")}</p>
           </div>
           <Link
             href={`/${locale}/team`}
-            style={{ fontSize: "13px", color: "#C8E400", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            className="font-heading font-bold uppercase inline-flex items-center"
+            style={{ fontSize: "14px", letterSpacing: "0.08em", color: "#C8E400", textDecoration: "none", gap: "8px", flexShrink: 0, minHeight: "44px" }}
           >
-            {t("cta")} →
+            <span className="link-draw">{t("cta")}</span> <span className="arrow" aria-hidden="true">→</span>
           </Link>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {players.map((player, i) => (
-            <m.div
+        <Reveal stagger={0.06} y={20} className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+          {players.map((player) => (
+            <div
               key={player.tag}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: i * 0.06 }}
-              className="group relative overflow-hidden"
-              style={{ aspectRatio: "1/1", borderRadius: "8px", border: `1px solid ${player.color}20` }}
+              data-reveal
+              className="group relative overflow-hidden lift"
+              style={{ aspectRatio: "1/1", borderRadius: "10px", border: `1px solid ${player.color}26`, background: "#141414" }}
             >
               <Image
                 src={player.img}
                 alt={player.tag}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 sizes="(max-width: 640px) 50vw, 25vw"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
               <div
                 className="absolute inset-0 flex flex-col justify-end"
-                style={{ padding: "12px", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }}
+                style={{ padding: "14px", background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 45%, transparent 75%)" }}
               >
                 <div
-                  className="absolute top-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="absolute top-0 left-0 right-0 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"
                   style={{ height: "3px", background: player.color }}
                 />
                 <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "4px" }}>
                   <div>
-                    <p className="font-heading font-black uppercase" style={{ fontSize: "12px", color: "#FFFFFF", lineHeight: 1.2 }}>{player.tag}</p>
-                    <p style={{ fontSize: "10px", marginTop: "2px", color: player.color }}>{player.role}</p>
+                    <p className="font-heading font-black uppercase" style={{ fontSize: "clamp(13px, 1.3vw, 16px)", color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "0.02em" }}>{player.tag}</p>
+                    <p style={{ fontSize: "11px", marginTop: "3px", color: player.color, fontWeight: 500 }}>{player.role}</p>
                   </div>
                   <span
                     className="font-heading font-bold uppercase"
-                    style={{ fontSize: "8px", letterSpacing: "0.10em", padding: "2px 6px", borderRadius: "2px", color: player.color, background: `${player.color}20`, border: `1px solid ${player.color}40`, flexShrink: 0 }}
+                    style={{ fontSize: "10px", letterSpacing: "0.10em", padding: "2px 6px", borderRadius: "3px", color: player.color, background: `${player.color}20`, border: `1px solid ${player.color}40`, flexShrink: 0 }}
                   >
                     {player.label === "Coach" ? "Coach" : player.game}
                   </span>
                 </div>
               </div>
-            </m.div>
+            </div>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

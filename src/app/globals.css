@@ -10,8 +10,9 @@
   --color-charcoal:   #2A2A2A;
   --color-border:     #2A2A2A;
   --color-border-sub: #1F1F1F;
-  --color-muted:      #888888;
-  --color-dim:        #555555;
+  --color-muted:      #A1A1A1;
+  --color-dim:        #8A8A8A;
+  --color-faint:      #808080;
 
   --font-heading: var(--font-barlow);
   --font-body:    var(--font-inter);
@@ -31,17 +32,60 @@ body {
   overflow-x: hidden;
 }
 
+/* Type: headings balance, paragraphs avoid orphans */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Layout rhythm: one container, one section padding */
+.container-x {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.section {
+  padding: clamp(72px, 9vw, 128px) 0;
+  background: #1A1A1A;
+  border-bottom: 1px solid #1F1F1F;
+}
+.section-title {
+  font-family: var(--font-barlow), sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  font-size: clamp(36px, 5.2vw, 60px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+}
+.lead {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-muted);
+  max-width: 34rem;
+}
+
 /* ── Eyebrow ────────────────────────────────────────── */
 .eyebrow {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-barlow), sans-serif;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.20em;
+  letter-spacing: 0.2em;
   color: #C8E400;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
+.eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 2px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.text-center .eyebrow, .eyebrow.eyebrow-center { justify-content: center; }
 
 /* ── Buttons ────────────────────────────────────────── */
 .btn-primary {
@@ -53,18 +97,25 @@ body {
   color: #1A1A1A;
   font-family: var(--font-barlow), sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 12px 28px;
-  border-radius: 3px;
+  min-height: 48px;
+  padding: 0 28px;
+  border-radius: 4px;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: background-color 0.2s ease-out, transform 0.2s ease-out, box-shadow 0.2s ease-out;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: 0 0 0 0 rgba(200,228,0,0);
 }
-.btn-primary:hover { opacity: 0.85; }
+.btn-primary:hover {
+  background: #D6F21A;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px -10px rgba(200,228,0,0.55);
+}
+.btn-primary:active { transform: translateY(0) scale(0.98); }
 
 .btn-secondary {
   display: inline-flex;
@@ -75,18 +126,80 @@ body {
   color: #ffffff;
   font-family: var(--font-barlow), sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 12px 28px;
-  border-radius: 3px;
-  border: 1.5px solid #444444;
+  min-height: 48px;
+  padding: 0 28px;
+  border-radius: 4px;
+  border: 1.5px solid #3D3D3D;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.2s ease-out, color 0.2s ease-out, transform 0.2s ease-out, background-color 0.2s ease-out;
   text-decoration: none;
   white-space: nowrap;
 }
-.btn-secondary:hover { border-color: #C8E400; color: #C8E400; }
+.btn-secondary:hover { border-color: #C8E400; color: #C8E400; background: rgba(200,228,0,0.04); transform: translateY(-1px); }
+.btn-secondary:active { transform: translateY(0) scale(0.98); }
+
+/* Arrow that nudges on hover */
+.arrow { display: inline-block; transition: transform 0.2s ease-out; }
+a:hover > .arrow, button:hover > .arrow { transform: translateX(3px); }
+
+/* Text link with a lime underline that draws in */
+.link-draw {
+  position: relative;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s ease-out, color 0.2s ease-out;
+}
+.link-draw:hover { background-size: 100% 1px; }
+
+/* Keyboard focus, everywhere */
+:focus-visible {
+  outline: 2px solid #C8E400;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Nav links: underline slides in, current page stays lit */
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #A1A1A1;
+  text-decoration: none;
+  transition: color 0.2s ease-out;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 2px;
+  background: #C8E400;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease-out;
+}
+.nav-link:hover { color: #FFFFFF; }
+.nav-link:hover::after { transform: scaleX(1); opacity: 0.5; }
+.nav-link.is-active { color: #C8E400; }
+.nav-link.is-active::after { transform: scaleX(1); opacity: 1; }
+.nav-link-accent { color: #C8E400; }
+.nav-link-accent:hover { color: #D6F21A; }
+.nav-link-quiet { font-size: 13px; color: #8A8A8A; }
+.nav-link-quiet::after { display: none; }
+
+/* Card lift used by game, tier and roster cards */
+.lift { transition: transform 0.3s cubic-bezier(.2,.8,.2,1), border-color 0.3s ease-out, box-shadow 0.3s ease-out; }
+.lift:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -24px rgba(0,0,0,0.8); }
 
 /* ── Dot grid ───────────────────────────────────────── */
 .bg-grid {
@@ -113,6 +226,58 @@ body {
   animation: marquee 30s linear infinite;
 }
 .marquee-track:hover { animation-play-state: paused; }
+
+/* ── Hero ───────────────────────────────────────────── */
+.hero-glow {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  left: 50%;
+  top: 40%;
+  margin: -35vmax 0 0 -35vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,228,0,0.16) 0%, rgba(200,228,0,0.05) 35%, transparent 65%);
+  pointer-events: none;
+  will-change: transform;
+}
+.hero-word {
+  font-family: var(--font-barlow), sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.05);
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Hero intro: hidden before hydration so it does not flash (the paragraph
+   stays visible so it can paint first), with a CSS
+   failsafe that shows everything after 3s if scripts never run. */
+@keyframes hero-failsafe { to { opacity: 1; visibility: visible; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-pre [data-hero="eyebrow"],
+  .hero-pre [data-hero="cta"] > *,
+  .hero-pre [data-hero="stat"],
+  .hero-pre [data-hero-word] {
+    opacity: 0;
+    animation: hero-failsafe 0s linear 3s forwards;
+  }
+}
+
+/* ── Lenis smooth scroll ────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ── Reduced motion: no loops, no lifts ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  .lift:hover, .btn-primary:hover, .btn-secondary:hover { transform: none; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 
 /* ── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
