@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { m } from "framer-motion";
+import Reveal from "@/components/motion/Reveal";
 
 const TIERS = [
   { name: "Associate",    color: "#7F8C8D" },
@@ -17,28 +17,23 @@ export default function SponsorshipTeaser() {
   const t = useTranslations("sponsorship_teaser");
 
   return (
-    <section style={{ padding: "80px 0", borderBottom: "1px solid #1F1F1F", background: "#1A1A1A" }}>
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          <m.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
+    <section className="section">
+      <div className="container-x">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+          <Reveal>
             <span className="eyebrow">{t("eyebrow")}</span>
-            <h2 className="font-heading font-black uppercase text-white leading-[0.95]" style={{ fontSize: "clamp(28px, 5vw, 48px)", marginBottom: "20px" }}>
+            <h2 className="section-title" style={{ marginBottom: "24px" }}>
               {t("title")}
             </h2>
-            <p style={{ fontSize: "14px", color: "#888888", lineHeight: 1.65, marginBottom: "28px", maxWidth: "400px" }}>
+            <p className="lead" style={{ marginBottom: "28px" }}>
               {t("description")}
             </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "32px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "36px" }}>
               {PLATFORMS.map((p) => (
                 <span
                   key={p}
                   className="font-heading font-bold uppercase"
-                  style={{ fontSize: "10px", letterSpacing: "0.12em", padding: "4px 10px", borderRadius: "3px", background: "#222222", border: "1px solid #2A2A2A", color: "#555555" }}
+                  style={{ fontSize: "11px", letterSpacing: "0.12em", padding: "5px 10px", borderRadius: "4px", background: "#202020", border: "1px solid #2E2E2E", color: "var(--color-dim)" }}
                 >
                   {p}
                 </span>
@@ -47,50 +42,41 @@ export default function SponsorshipTeaser() {
             <Link href={`/${locale}/sponsorship`} className="btn-primary">
               {t("cta")}
             </Link>
-          </m.div>
+          </Reveal>
 
-          <m.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-          >
-            {TIERS.map((tier, i) => (
-              <m.div
+          <Reveal stagger={0.08} delay={0.1} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {TIERS.map((tier) => (
+              <div
                 key={tier.name}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.35, delay: 0.15 + i * 0.08 }}
+                data-reveal
+                className="lift"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "14px",
-                  padding: "18px 20px",
-                  borderRadius: "8px",
-                  background: "#222222",
+                  padding: "22px 24px",
+                  borderRadius: "10px",
+                  background: `linear-gradient(90deg, ${tier.color}12, transparent 60%), #202020`,
                   border: `1px solid ${tier.color}25`,
                   borderLeft: `3px solid ${tier.color}`,
                 }}
               >
-                <span className="font-heading font-black uppercase" style={{ fontSize: "16px", color: tier.color }}>
+                <span className="font-heading font-black uppercase" style={{ fontSize: "20px", letterSpacing: "0.02em", color: tier.color }}>
                   {tier.name}
                 </span>
-              </m.div>
+              </div>
             ))}
-            <div style={{ marginTop: "8px", paddingTop: "16px", borderTop: "1px solid #1F1F1F" }}>
+            <div data-reveal style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #262626" }}>
               <a
                 href="mailto:Imperfectgamingpr@gmail.com"
-                style={{ fontSize: "13px", color: "#555555", textDecoration: "none", transition: "color 0.15s", display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#C8E400")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#555555")}
+                className="hover:text-lime"
+                style={{ fontSize: "14px", color: "var(--color-dim)", textDecoration: "none", transition: "color 0.2s ease-out", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "44px" }}
               >
                 <span>Imperfectgamingpr@gmail.com</span>
-                <span>→</span>
+                <span className="arrow" aria-hidden="true">→</span>
               </a>
             </div>
-          </m.div>
+          </Reveal>
         </div>
       </div>
     </section>
