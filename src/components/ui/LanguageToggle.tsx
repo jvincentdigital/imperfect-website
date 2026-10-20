@@ -19,8 +19,8 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggle}
-      aria-label="Switch language"
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 text-xs font-medium text-white/60 hover:text-white hover:border-white/20 transition-all duration-200 font-body"
+      aria-label={`EN / ES: ${locale === "en" ? "Cambiar a español" : "Switch to English"}`}
+      className="flex items-center gap-1.5 px-3 min-h-[40px] rounded-full border border-white/10 text-xs font-medium text-white/60 hover:text-white hover:border-white/20 transition-all duration-200 font-body"
     >
       <span className={locale === "en" ? "text-lime font-semibold" : ""}>EN</span>
       <span className="text-white/20">/</span>
