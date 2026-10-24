@@ -64,6 +64,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
             echo "VERCEL_TOKEN not set — skipping preview check"
@@ -71,11 +72,11 @@ jobs:
           fi
 
           # Get the most recent preview deployment URL for this branch
-          BRANCH="${{ github.head_ref }}"
+          BRANCH="$HEAD_REF"
           echo "Fetching preview URL for branch: $BRANCH"
 
           PREVIEW_URL=$(npx vercel ls --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>/dev/null \
-            | grep "$BRANCH" | head -1 | awk '{print $2}')
+            | grep -F -- "$BRANCH" | head -1 | awk '{print $2}')
 
           if [ -z "$PREVIEW_URL" ]; then
             echo "No preview URL found yet — Vercel may still be building"
