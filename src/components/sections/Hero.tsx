@@ -3,6 +3,11 @@
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { m } from "framer-motion";
+import { HeroCardRotator, HeroCardRow } from "./HeroPlayerCards";
+
+// Background video: set NEXT_PUBLIC_HERO_VIDEO_URL (e.g. "/hero.mp4") once a clip
+// exists. Empty by default, so the page never requests a missing file.
+const HERO_VIDEO_URL = process.env.NEXT_PUBLIC_HERO_VIDEO_URL ?? "";
 
 export default function Hero() {
   const locale = useLocale();
@@ -29,7 +34,8 @@ export default function Hero() {
         paddingTop: "72px",
       }}
     >
-      {/* Background video */}
+      {/* Background video, only when a clip is configured */}
+      {HERO_VIDEO_URL && (
       <video
         autoPlay
         muted
@@ -44,8 +50,9 @@ export default function Hero() {
           zIndex: 0,
         }}
       >
-        <source src="/hero.mp4" type="video/mp4" />
+        <source src={HERO_VIDEO_URL} type="video/mp4" />
       </video>
+      )}
 
       {/* Dark overlay so text stays readable */}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.3) 100%)", zIndex: 1 }} />
@@ -54,7 +61,8 @@ export default function Hero() {
       <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "4px", background: "#C8E400", zIndex: 2 }} />
       <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" style={{ zIndex: 1 }} />
 
-      <div className="w-full" style={{ maxWidth: "1280px", margin: "0 auto", padding: "80px 48px 80px 64px", position: "relative", zIndex: 2 }}>
+      <div className="w-full hero-grid" style={{ maxWidth: "1280px", margin: "0 auto", padding: "80px 48px 80px 64px", position: "relative", zIndex: 2 }}>
+        <div style={{ minWidth: 0 }}>
         <m.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -98,6 +106,15 @@ export default function Hero() {
         </m.div>
 
         <m.div
+          className="hero-cards-row"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.45 }}
+        >
+          <HeroCardRow />
+        </m.div>
+
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.5 }}
@@ -109,6 +126,16 @@ export default function Hero() {
               <p style={{ fontSize: "10px", color: "#666666", textTransform: "uppercase", letterSpacing: "0.12em", marginTop: "4px" }}>{s.label}</p>
             </div>
           ))}
+        </m.div>
+        </div>
+
+        <m.div
+          className="hero-cards-rotator"
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <HeroCardRotator />
         </m.div>
       </div>
     </section>

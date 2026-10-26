@@ -118,3 +118,14 @@ body {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: #111111; }
 ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 3px; }
+
+/* ── Hero: player cards ─────────────────────────────── */
+.hero-grid { display: block; }
+.hero-cards-rotator { display: none; }
+.hero-cards-row { display: block; }
+@media (min-width: 900px) {
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 56px; }
+  .hero-cards-rotator { display: block; padding-right: 24px; }
+  .hero-cards-row { display: none; }
+}
+.hero-card-link:focus-visible { outline: 3px solid #C8E400; outline-offset: 4px; }
