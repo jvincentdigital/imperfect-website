@@ -27,7 +27,9 @@
     "stat_players": "Players",
     "stat_titles": "Active Titles",
     "stat_tournaments": "Tournaments",
-    "stat_region": "Both Titles"
+    "stat_region": "Both Titles",
+    "card_alt": "Welcome {name} to IMPerfect",
+    "cards_label": "The IMPerfect roster"
   },
   "stats": {
     "founded": "Founded",
