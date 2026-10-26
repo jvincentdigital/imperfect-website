@@ -9,6 +9,18 @@ import { HeroCardRotator, HeroCardRow } from "./HeroPlayerCards";
 // exists. Empty by default, so the page never requests a missing file.
 const HERO_VIDEO_URL = process.env.NEXT_PUBLIC_HERO_VIDEO_URL ?? "";
 
+const HERO_CARDS_CSS = `
+.hero-grid{display:block}
+.hero-cards-rotator{display:none}
+.hero-cards-row{display:block}
+@media (min-width:900px){
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:56px}
+  .hero-cards-rotator{display:block;padding-right:24px}
+  .hero-cards-row{display:none}
+}
+.hero-card-link:focus-visible{outline:3px solid #C8E400;outline-offset:4px}
+`;
+
 export default function Hero() {
   const locale = useLocale();
   const t = useTranslations("hero");
@@ -22,6 +34,10 @@ export default function Hero() {
   ];
 
   return (
+    <>
+    {/* Hero card layout rules live here, next to the markup, so a cached
+        stylesheet can never leave both layouts showing (seen live 2026-10-25). */}
+    <style>{HERO_CARDS_CSS}</style>
     <section
       style={{
         position: "relative",
@@ -139,5 +155,6 @@ export default function Hero() {
         </m.div>
       </div>
     </section>
+    </>
   );
 }
