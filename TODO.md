@@ -2,6 +2,13 @@
 
 AGENTS: When prompted, complete tasks from the list below. Before starting work, mark the item as pending `[~]` so parallel agents don't collide. After completion, mark it `[x]`. Start at the top unless the user specifies otherwise.
 
+## Where we left off (2026-10-26, Puerto Rico)
+
+- Live on imperfectgg.com: the empty right side of the home hero (the never-uploaded `/hero.mp4`, a 404) is now the 8 player "Welcome" cards: a rotating tilted card on desktop (3.5 s, pauses on hover, reduced-motion safe, links to /team), a swipeable row on phones (#4). The video renders only when `NEXT_PUBLIC_HERO_VIDEO_URL` is set.
+- #5: the first deploy of #4 showed both layouts on desktop for about 10 minutes (the deployed CSS lacked the new globals.css rules, likely a cached chunk); the layout rules now ship in a `<style>` inside `Hero.tsx`. Checked live at 1366 px and 390 px after the fix.
+- Open: card alt text uses Discord tags (spooit, zoivanni), not the names on the art (Kevo, Zoin); the mapping is in `src/components/sections/HeroPlayerCards.tsx`.
+- John's local checkout stays on `fix/workspace-review` (untouched).
+
 ## Security & Data Integrity
 
 - [x] Add try-catch error handling to all 14 unprotected API routes — `scrims`, `scrim-applications/[id]`, `schedule`, `players`, `announcements`, `availability/template`, `availability/override`, `admin/users`, `admin/invites`, `admin/audit-log`, `admin/stats-override`. Use `apiError()` from `src/lib/api-error.ts` for consistent responses.
