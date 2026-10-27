@@ -14,7 +14,7 @@ const COPY = {
     eyebrow: "Lab · Test page",
     title: "Tap the controller",
     body: "It breaks apart into a QR code for our Discord. Tap again and it puts itself back together.",
-    styles: { neon: "Neon", realistic: "Realistic", watercolor: "Watercolor" },
+    styles: { neon: "Neon", watercolor: "Watercolor" },
     styleLabel: "Style",
     models: { classic: "IMPerfect pad", twoTone: "Two-tone pad", offset: "Offset sticks", pc: "Keyboard + mouse" },
     modelLabel: "Controller",
@@ -30,7 +30,7 @@ const COPY = {
     eyebrow: "Lab · Página de prueba",
     title: "Toca el control",
     body: "Se desarma en un código QR para entrar a nuestro Discord. Tócalo otra vez y se arma de nuevo.",
-    styles: { neon: "Neón", realistic: "Realista", watercolor: "Acuarela" },
+    styles: { neon: "Neón", watercolor: "Acuarela" },
     styleLabel: "Estilo",
     models: { classic: "Control IMPerfect", twoTone: "Control bicolor", offset: "Sticks desfasados", pc: "Teclado y mouse" },
     modelLabel: "Control",
@@ -44,7 +44,7 @@ const COPY = {
   },
 } as const;
 
-const STYLES: BurstStyle[] = ["neon", "realistic", "watercolor"];
+const STYLES = ["neon", "watercolor"] as const; // Realistic dropped: on dark gear it only read as a white backdrop
 
 // Our own designs in the shapes players know (no console maker's logos, symbols or names).
 const MODELS = { classic: controller, twoTone: padTwoTone, offset: padOffset, pc: pcSetup } as const;
