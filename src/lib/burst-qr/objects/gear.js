@@ -1,6 +1,7 @@
 // Gaming gear of our own design for the IMPerfect lab, in the familiar shapes players know:
 // - padTwoTone: white wings, black centre, big touchpad with lime light bars, sticks side by side.
 // - padOffset: rounder matte black pad, left stick high and right stick low.
+// - padPro: pro pad with a striped faceplate and four back paddles that show under the grips.
 // - pcSetup: compact keyboard (lime WASD, RGB under-glow) and a mouse on a desk mat; the keycaps fly into the code.
 // No console maker's logos, button symbols or names. Same palette and idle motion as controller.js.
 // Needs an engine with tick(time, t, pointer, style) for the neon boost (the IMPerfect copy); works without it too.
@@ -72,6 +73,18 @@ function buildPad(kit, cfg) {
   const shellMat = new THREE.MeshPhysicalMaterial({ color: cfg.shell, roughness: cfg.shellRough, metalness: 0.04, clearcoat: cfg.clearcoat, clearcoatRoughness: 0.1, envMapIntensity: 0.3 });
   const sideMat = new THREE.MeshPhysicalMaterial({ color: cfg.side, roughness: 0.45, metalness: 0.2, clearcoat: 0.5, envMapIntensity: 0.4 });
   add(shellGeo, [shellMat, sideMat]);
+
+  // pro pad: a swappable-looking faceplate with lime stripes, slightly inside the outline
+  if (cfg.faceplate) {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'); g.fillStyle = '#16181b'; g.fillRect(0, 0, 256, 256);
+    g.strokeStyle = LIME; g.globalAlpha = 0.85;
+    for (let i = -256; i < 512; i += 128) { g.lineWidth = 26; g.beginPath(); g.moveTo(i, 256); g.lineTo(i + 256, 0); g.stroke(); }
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(0.28, 0.28); tex.anisotropy = 8;
+    const plateGeo = new THREE.ShapeGeometry(sh, 48);
+    const fp = add(plateGeo, new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.5, clearcoat: 0.6, clearcoatRoughness: 0.2 }), 0, 0, FZ + 0.002);
+    fp.scale.setScalar(0.93); fp.position.y = -0.03;
+  }
 
   const poly = sh.getSpacedPoints(260).slice(0, -1);
   const inside = (x, y) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) c = !c; } return c; };
@@ -155,6 +168,13 @@ function buildPad(kit, cfg) {
       part(lit ? studLit : stud, lit ? studLitMat : studMat, V(x, y, FZ + 0.004), undefined, R * 1.7);
     }
 
+  // back paddles: lime tabs under the grips (they fly into the code too)
+  if (cfg.paddles) {
+    const pad = roundBox(0.13, 0.5, 0.04, 0.06, 0.012);
+    paint(pad, (x, y, z) => [LIME, 0.75 + 0.5 * (y + 0.21)]); pad.userData.press = 'press';
+    for (const [x, y, a] of cfg.paddles) part(pad, { roughness: 0.3, clearcoat: 1, metalness: 0.1 }, V(x, y, -0.26), qz(a));
+  }
+
   // lime sparks hidden inside: they burst out and fill the rest of the code
   const spark = new THREE.OctahedronGeometry(0.5, 0);
   paint(spark, () => [LIME, 1.1]);
@@ -170,7 +190,7 @@ function buildPad(kit, cfg) {
     const neon = style === 'neon', live = 1 - smooth(0, 0.35, t);
     const look = ptr && ptr.active ? ptr.x * 0.18 : 0;
     rig.position.y = 0.07 * Math.sin(time * 1.3);
-    rig.rotation.set(0.04 * Math.sin(time * 0.9), 0.42 * Math.sin(time * 0.32) + look, 0.025 * Math.sin(time * 0.7));
+    rig.rotation.set(0.04 * Math.sin(time * 0.9), (cfg.swing || 0.42) * Math.sin(time * 0.32) + look, 0.025 * Math.sin(time * 0.7));
     barMat.emissiveIntensity = (neon ? 2.6 : 1.6) * (0.75 + 0.25 * Math.sin(time * 2.2)) * live;
     ringMat.emissiveIntensity = (neon ? 1.8 : 1.1) * (0.7 + 0.3 * Math.sin(time * 2.2 + 1.5));
     dotMat.emissiveIntensity = neon ? 2 : 1.3;
@@ -186,21 +206,21 @@ export function padTwoTone(kit) {
   const { V } = kit;
   return buildPad(kit, {
     right: [
-      [[0.45, 0.7], [1.0, 0.72], [1.3, 0.66]],
-      [[1.58, 0.6], [1.7, 0.35], [1.72, 0.05]],
-      [[1.76, -0.4], [1.84, -0.86], [1.64, -1.2]],
-      [[1.47, -1.45], [1.1, -1.4], [1.0, -1.13]],
-      [[0.88, -0.83], [0.72, -0.5], [0.44, -0.46]],
-      [[0.28, -0.44], [0.12, -0.42], [0, -0.42]],
+      [[0.5, 0.74], [1.05, 0.74], [1.38, 0.64]],
+      [[1.62, 0.56], [1.74, 0.36], [1.76, 0.08]],
+      [[1.8, -0.42], [1.9, -0.95], [1.74, -1.32]],
+      [[1.6, -1.6], [1.18, -1.58], [1.06, -1.28]],
+      [[0.94, -0.95], [0.78, -0.52], [0.46, -0.42]],
+      [[0.3, -0.39], [0.14, -0.38], [0, -0.38]],
     ],
     shell: '#eceef1', side: '#d5d8dd', shellRough: 0.32, clearcoat: 0.9, well: '#16171a',
-    plate: { w: 1.36, h: 1.02, y: 0.1, r: 0.22 },
-    touchpad: { w: 0.66, h: 0.36, y: 0.4 },
-    DPAD: V(-1.08, 0.2), FACE: V(1.08, 0.2), STICKS: [V(-0.42, -0.2), V(0.42, -0.2)], HOME: V(0, -0.08),
-    small: [[-0.5, 0.48], [0.5, 0.48], [0, -0.3]], dotsY: 0.14,
+    plate: { w: 1.42, h: 1.1, y: 0.07, r: 0.3 },
+    touchpad: { w: 0.84, h: 0.46, y: 0.44 },
+    DPAD: V(-1.12, 0.22), FACE: V(1.12, 0.22), STICKS: [V(-0.4, -0.16), V(0.4, -0.16)], HOME: V(0, -0.1),
+    small: [[-0.6, 0.56], [0.6, 0.56], [0, -0.3]], dotsY: 0.16,
     dpadColor: '#b9bec6', btnColor: '#3a3e45', bumpColor: '#d9dce1', trigColor: '#cfd3d9', studColor: '#c4c8cf',
-    shoulderX: 1.12, shoulderY: 0.86,
-    grip: (x, y) => Math.abs(x) > 0.8 && y < -0.12,
+    shoulderX: 1.14, shoulderY: 0.9,
+    grip: (x, y) => Math.abs(x) > 0.85 && y < -0.3,
   });
 }
 
@@ -217,12 +237,37 @@ export function padOffset(kit) {
       [[0.2, -0.55], [0.1, -0.54], [0, -0.54]],
     ],
     shell: '#1b1c1f', side: '#26282c', shellRough: 0.58, clearcoat: 0.15, well: '#0b0b0c',
-    DPAD: V(-0.46, -0.24), FACE: V(0.92, 0.24), STICKS: [V(-0.92, 0.24), V(0.46, -0.24)], HOME: V(0, 0.4),
-    homeScale: 1.35,
+    DPAD: V(-0.46, -0.24), FACE: V(0.92, 0.24), STICKS: [V(-0.92, 0.24), V(0.46, -0.24)], HOME: V(0, 0.46),
+    homeScale: 1.6,
     small: [[-0.2, 0.16], [0.2, 0.16], [0, 0.04]], dotsY: 0.58,
     dpadColor: '#2b2e33', btnColor: '#2a2d31', bumpColor: '#222428', trigColor: '#17191b', studColor: '#34373c',
     shoulderX: 0.98, shoulderY: 0.78,
     grip: (x, y) => Math.abs(x) > 0.72 && y < -0.3,
+  });
+}
+
+/** Pro pad: offset sticks, lime-striped faceplate, four back paddles, a wider idle turn to show them. @type {import("../burst-qr").BurstObjectBuilder} */
+export function padPro(kit) {
+  const { V } = kit;
+  return buildPad(kit, {
+    right: [
+      [[0.42, 0.66], [0.9, 0.74], [1.24, 0.64]],
+      [[1.5, 0.56], [1.64, 0.3], [1.66, 0.0]],
+      [[1.68, -0.42], [1.6, -0.86], [1.4, -1.1]],
+      [[1.2, -1.32], [0.9, -1.24], [0.8, -1.0]],
+      [[0.7, -0.78], [0.56, -0.6], [0.34, -0.58]],
+      [[0.2, -0.57], [0.1, -0.56], [0, -0.56]],
+    ],
+    shell: '#141517', side: '#1f2124', shellRough: 0.62, clearcoat: 0.1, well: '#0b0b0c',
+    faceplate: true,
+    paddles: [[-1.24, -1.12, -0.35], [-1.0, -1.1, -0.2], [1.0, -1.1, 0.2], [1.24, -1.12, 0.35]],
+    swing: 0.8,
+    DPAD: V(-0.46, -0.24), FACE: V(0.92, 0.24), STICKS: [V(-0.92, 0.24), V(0.46, -0.24)], HOME: V(0, 0.46),
+    homeScale: 1.4,
+    small: [[-0.2, 0.18], [0.2, 0.18]], dotsY: 0.62,
+    dpadColor: '#2b2e33', btnColor: '#25282c', bumpColor: '#222428', trigColor: '#17191b', studColor: '#2a2d31',
+    shoulderX: 0.98, shoulderY: 0.78,
+    grip: (x, y) => Math.abs(x) > 0.74 && y < -0.42,
   });
 }
 

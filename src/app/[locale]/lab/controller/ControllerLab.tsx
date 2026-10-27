@@ -4,7 +4,7 @@ import { useState } from "react";
 import BurstQR from "@/lib/burst-qr/BurstQR";
 import type { BurstQR as BurstQRApi } from "@/lib/burst-qr/burst-qr";
 import { controller, controllerPalette } from "@/lib/burst-qr/objects/controller.js";
-import { padTwoTone, padOffset, pcSetup } from "@/lib/burst-qr/objects/gear.js";
+import { padTwoTone, padOffset, padPro, pcSetup } from "@/lib/burst-qr/objects/gear.js";
 
 // Same community Discord link the Navbar, Footer and Community page use.
 const DISCORD = "https://discord.gg/QgDansRt2p";
@@ -14,7 +14,7 @@ const COPY = {
     eyebrow: "Lab · Test page",
     title: "Tap the controller",
     body: "It breaks apart into a QR code for our Discord. Tap again and it puts itself back together.",
-    models: { classic: "IMPerfect pad", twoTone: "Two-tone pad", offset: "Offset sticks", pc: "Keyboard + mouse" },
+    models: { classic: "IMPerfect pad", twoTone: "Two-tone pad", offset: "Offset sticks", pro: "Pro pad + paddles", pc: "Keyboard + mouse" },
     modelLabel: "Controller",
     label: "Game controller. Press Enter to turn it into a QR code for the IMPerfect Discord.",
     toQr: "Show QR code",
@@ -28,7 +28,7 @@ const COPY = {
     eyebrow: "Lab · Página de prueba",
     title: "Toca el control",
     body: "Se desarma en un código QR para entrar a nuestro Discord. Tócalo otra vez y se arma de nuevo.",
-    models: { classic: "Control IMPerfect", twoTone: "Control bicolor", offset: "Sticks desfasados", pc: "Teclado y mouse" },
+    models: { classic: "Control IMPerfect", twoTone: "Control bicolor", offset: "Sticks desfasados", pro: "Control pro con paletas", pc: "Teclado y mouse" },
     modelLabel: "Control",
     label: "Control de videojuegos. Presiona Enter para convertirlo en un código QR para el Discord de IMPerfect.",
     toQr: "Ver código QR",
@@ -42,7 +42,7 @@ const COPY = {
 
 
 // Our own designs in the shapes players know (no console maker's logos, symbols or names).
-const MODELS = { classic: controller, twoTone: padTwoTone, offset: padOffset, pc: pcSetup } as const;
+const MODELS = { classic: controller, twoTone: padTwoTone, offset: padOffset, pro: padPro, pc: pcSetup } as const;
 type Model = keyof typeof MODELS;
 const MODEL_KEYS = Object.keys(MODELS) as Model[];
 
