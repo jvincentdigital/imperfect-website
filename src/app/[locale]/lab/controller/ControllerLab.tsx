@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import BurstQR from "@/lib/burst-qr/BurstQR";
-import type { BurstQR as BurstQRApi, BurstStyle } from "@/lib/burst-qr/burst-qr";
+import type { BurstQR as BurstQRApi } from "@/lib/burst-qr/burst-qr";
 import { controller, controllerPalette } from "@/lib/burst-qr/objects/controller.js";
 import { padTwoTone, padOffset, pcSetup } from "@/lib/burst-qr/objects/gear.js";
 
@@ -14,8 +14,6 @@ const COPY = {
     eyebrow: "Lab · Test page",
     title: "Tap the controller",
     body: "It breaks apart into a QR code for our Discord. Tap again and it puts itself back together.",
-    styles: { neon: "Neon", watercolor: "Watercolor" },
-    styleLabel: "Style",
     models: { classic: "IMPerfect pad", twoTone: "Two-tone pad", offset: "Offset sticks", pc: "Keyboard + mouse" },
     modelLabel: "Controller",
     label: "Game controller. Press Enter to turn it into a QR code for the IMPerfect Discord.",
@@ -30,8 +28,6 @@ const COPY = {
     eyebrow: "Lab · Página de prueba",
     title: "Toca el control",
     body: "Se desarma en un código QR para entrar a nuestro Discord. Tócalo otra vez y se arma de nuevo.",
-    styles: { neon: "Neón", watercolor: "Acuarela" },
-    styleLabel: "Estilo",
     models: { classic: "Control IMPerfect", twoTone: "Control bicolor", offset: "Sticks desfasados", pc: "Teclado y mouse" },
     modelLabel: "Control",
     label: "Control de videojuegos. Presiona Enter para convertirlo en un código QR para el Discord de IMPerfect.",
@@ -44,7 +40,6 @@ const COPY = {
   },
 } as const;
 
-const STYLES = ["neon", "watercolor"] as const; // Realistic dropped: on dark gear it only read as a white backdrop
 
 // Our own designs in the shapes players know (no console maker's logos, symbols or names).
 const MODELS = { classic: controller, twoTone: padTwoTone, offset: padOffset, pc: pcSetup } as const;
@@ -53,7 +48,6 @@ const MODEL_KEYS = Object.keys(MODELS) as Model[];
 
 export default function ControllerLab({ locale }: { locale: "en" | "es" }) {
   const t = COPY[locale];
-  const [style, setStyle] = useState<BurstStyle>("neon");
   const [model, setModel] = useState<Model>("classic");
   const [open, setOpen] = useState(false);
   const [api, setApi] = useState<BurstQRApi | null>(null);
@@ -86,33 +80,16 @@ export default function ControllerLab({ locale }: { locale: "en" | "es" }) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between" style={{ gap: "12px", marginBottom: "12px" }}>
-          <div role="group" aria-label={t.styleLabel} className="flex" style={{ border: "1px solid #2A2A2A", borderRadius: "3px", padding: "3px", gap: "3px" }}>
-            {STYLES.map((s) => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={style === s}
-                onClick={() => setStyle(s)}
-                className="font-heading font-bold uppercase"
-                style={{
-                  fontSize: "13px", letterSpacing: "0.08em", padding: "8px 14px", minHeight: "40px", borderRadius: "2px", border: "none", cursor: "pointer",
-                  background: style === s ? "#C8E400" : "transparent", color: style === s ? "#1A1A1A" : "#888888",
-                }}
-              >
-                {t.styles[s]}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center justify-end" style={{ gap: "12px", marginBottom: "12px" }}>
           <button type="button" className="btn-secondary" disabled={!api} onClick={() => api?.toggle()} style={{ minHeight: "44px", opacity: api ? 1 : 0.4 }}>
             {open ? t.toObj : t.toQr}
           </button>
         </div>
 
-        <div style={{ position: "relative", height: "min(68vh, 620px)", minHeight: "360px", borderRadius: "6px", overflow: "hidden", border: "1px solid #1F1F1F", background: style === "neon" ? controllerPalette.night : controllerPalette.bg }}>
+        <div style={{ position: "relative", height: "min(68vh, 620px)", minHeight: "360px", borderRadius: "6px", overflow: "hidden", border: "1px solid #1F1F1F", background: controllerPalette.night }}>
           {failed ? (
             <div className="flex h-full flex-col items-center justify-center" style={{ gap: "16px", padding: "24px", textAlign: "center" }}>
-              <p style={{ color: style === "neon" ? "#888888" : "#555555" }}>{t.failed}</p>
+              <p style={{ color: "#888888" }}>{t.failed}</p>
               <a href={DISCORD} target="_blank" rel="noopener noreferrer" className="btn-primary">Discord</a>
             </div>
           ) : (
@@ -122,7 +99,7 @@ export default function ControllerLab({ locale }: { locale: "en" | "es" }) {
               link={DISCORD}
               object={MODELS[model]}
               palette={controllerPalette}
-              style={style}
+              style="neon"
               label={t.label}
               onReady={setApi}
               onToggle={setOpen}
