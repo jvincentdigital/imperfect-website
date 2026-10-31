@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getInviteByToken, upsertPlayer, appendAuditLog } from "@/lib/db";
+import { getInviteByToken, redeemInvite, upsertPlayer, appendAuditLog } from "@/lib/db";
 
 export const metadata = { title: "Join Team Hub — IMPerfect" };
 
@@ -25,7 +25,18 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
   }
 
   const discordId = session.user.discordId;
+  if (invite.invited_discord_id !== discordId) {
+    return <ErrorPage message="This invite was made for a different Discord account." />;
+  }
+
   const displayName = (session.user as { displayName?: string }).displayName ?? session.user.name ?? discordId;
+
+  // Claim the invite first (atomic, single use). Only the winner gets a
+  // player row, so a reused or raced link never creates a member.
+  const claimedRole = await redeemInvite(token, discordId);
+  if (!claimedRole) {
+    return <ErrorPage message="This invite link has already been used or doesn't exist." />;
+  }
 
   // Upsert player with the invited role, mark invite used
   await upsertPlayer({
@@ -34,7 +45,7 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
     division: "IMPerfect",
     role: "player",
     is_admin: false,
-    org_role: invite.org_role,
+    org_role: claimedRole,
     game: null,
     in_game_role: null,
     rank: null,
@@ -42,18 +53,13 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
     archived: false,
   });
 
-  // Mark invite used. Use the shared server client (service role) so this
-  // write keeps working now that the allow-all anon RLS policies are dropped.
-  const { redeemInvite } = await import("@/lib/db");
-  await redeemInvite(token, discordId);
-
   await appendAuditLog({
     actor_discord_id: invite.created_by,
     action_type: "INVITE_REDEEMED",
     entity_type: "player",
     entity_id: discordId,
     before_val: null,
-    after_val: { org_role: invite.org_role, display_name: displayName },
+    after_val: { org_role: claimedRole, display_name: displayName },
   });
 
   redirect("/team-hub/dashboard");

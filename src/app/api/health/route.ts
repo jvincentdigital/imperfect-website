@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseKeyRole } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +7,9 @@ export async function GET() {
     ok: true,
     timestamp: new Date().toISOString(),
     supabase: "unconfigured",
+    // Which key the server uses. Must say "service_role" before the RLS
+    // lockdown migration is applied (see docs/database-security.md).
+    supabase_key: supabaseKeyRole,
   };
 
   if (supabase) {

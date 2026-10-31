@@ -16,6 +16,9 @@ AGENTS: When prompted, complete tasks from the list below. Before starting work,
 - [x] Add rate limiting (`checkRateLimit()`) to public POST endpoints: `/api/scrim-applications` and `/api/community-teams`.
 - [x] Add input validation for enum fields in management routes — `game` should be `OW2|MR`, sponsor `tier` should be `founding|gold|silver|bronze|community`, revenue `category` and `payment_method` need defined allowed values.
 - [x] Add max-length validation on all user-submitted string fields (team_name, captain_name, notes, etc.) in public endpoints to prevent oversized payloads.
+- [x] Bind each invite to one Discord user id; check at sign-in and on the join page; single use (atomic claim), expiry. Tests in `invites.test.ts`, `join-invite.test.ts` (2026-10-31).
+- [x] RLS lockdown migration + server-only service-role client + DB unit/integration tests with a fake Supabase client (2026-10-31).
+- [ ] John: roll out the lockdown in order (key on Vercel, deploy, check `/api/health`, then the two 2026-10-31 migrations). Steps in `docs/database-security.md`.
 - [x] Add missing env vars to `.env.example` — `OWNER_DISCORD_ID`, `DISCORD_BOT_TOKEN`, `DISCORD_CHANNEL_IMPERFECT`, `DISCORD_CHANNEL_SHADOWS`, `DISCORD_CHANNEL_SCRIMS`, `DISCORD_CHANNEL_COMMUNITY`.
 
 ## Error Handling & Reliability

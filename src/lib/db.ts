@@ -1,6 +1,7 @@
 /**
  * Data access layer — uses Supabase when configured, falls back to JSON files.
- * Connect Supabase by setting SUPABASE_URL and SUPABASE_ANON_KEY in .env.local.
+ * Connect Supabase by setting SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (server-only)
+ * in .env.local. See src/lib/supabase.ts.
  */
 import { supabase } from "./supabase";
 import type { OrgRole } from "./permissions";
@@ -66,7 +67,7 @@ function readJson<T>(filename: string): T[] {
     console.error(
       "[db] CRITICAL: Supabase is not configured in production. " +
       "Serving stale static JSON data — this is NOT suitable for production use. " +
-      "Set SUPABASE_URL and SUPABASE_ANON_KEY environment variables."
+      "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables."
     );
   }
   try {
@@ -159,6 +160,7 @@ export type Invite = {
   token:      string;
   org_role:   OrgRole;
   created_by: string;
+  invited_discord_id: string | null;
   used_by:    string | null;
   used_at:    string | null;
   expires_at: string;
@@ -440,11 +442,15 @@ export async function getInvites(): Promise<Invite[]> {
   return (data as Invite[]) ?? [];
 }
 
-export async function createInvite(orgRole: OrgRole, createdBy: string): Promise<Invite> {
+export async function createInvite(
+  orgRole: OrgRole,
+  createdBy: string,
+  invitedDiscordId: string,
+): Promise<Invite> {
   if (!supabase) throw new Error("Supabase required for invites");
   const { data, error } = await supabase
     .from("invites")
-    .insert({ org_role: orgRole, created_by: createdBy })
+    .insert({ org_role: orgRole, created_by: createdBy, invited_discord_id: invitedDiscordId })
     .select()
     .single();
   if (error) throw error;
@@ -461,19 +467,26 @@ export async function getInviteByToken(token: string): Promise<Invite | null> {
   return data as Invite | null;
 }
 
+/**
+ * Marks the invite used by `discordId` and returns its role, or null.
+ * Single use and race safe: the UPDATE only matches a row that is still
+ * unused, unexpired and bound to this Discord user, so two concurrent
+ * redemptions cannot both succeed.
+ */
 export async function redeemInvite(token: string, discordId: string): Promise<OrgRole | null> {
   if (!supabase) return null;
-  const invite = await getInviteByToken(token);
-  if (!invite) return null;
-  if (invite.used_by) return null; // already used
-  if (new Date(invite.expires_at) < new Date()) return null; // expired
-
-  await supabase
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
     .from("invites")
-    .update({ used_by: discordId, used_at: new Date().toISOString() })
-    .eq("token", token);
-
-  return invite.org_role;
+    .update({ used_by: discordId, used_at: now })
+    .eq("token", token)
+    .eq("invited_discord_id", discordId)
+    .is("used_by", null)
+    .gt("expires_at", now)
+    .select("org_role")
+    .maybeSingle();
+  if (error || !data) return null;
+  return (data as { org_role: OrgRole }).org_role;
 }
 
 export async function deleteInvite(id: string): Promise<void> {

@@ -17,7 +17,8 @@ Database access (Supabase PostgreSQL), migrations, JSON fallback for local dev, 
 
 - `src/lib/db.ts` is the single data access layer for team/player data. All queries go through exported functions — never import `supabase` directly in routes or components.
 - `src/lib/management-db.ts` is a separate module for management tables (tournaments, sponsors, revenue, checklists). It has no JSON fallback — requires Supabase.
-- The Supabase client (`src/lib/supabase.ts`) returns `null` if `SUPABASE_URL` or `SUPABASE_ANON_KEY` is missing. All DB functions must handle this gracefully.
+- The Supabase client (`src/lib/supabase.ts`) is server-only and uses `SUPABASE_SERVICE_ROLE_KEY` (anon key only as a local-dev fallback). It returns `null` if no URL/key is set. All DB functions must handle this gracefully.
+- RLS: every table denies anon/authenticated (no policies, no grants). A new table must be added to a lockdown migration like `20261031120100_rls_lockdown.sql`; `rls-lockdown.test.ts` fails if code uses a table the lockdown does not cover.
 - JSON fallback (`data/*.json`) activates automatically when Supabase is null. It logs a warning in production. Only core team data (players, availability, schedule) has JSON fallback — management, scrims, community features require Supabase.
 - Types are defined inline in `db.ts` (e.g., `Player`, `Scrim`, `Availability`, `AvailabilityTemplate`, `AvailabilityOverride`). Export types from `db.ts` — don't duplicate them.
 - Migrations live in `supabase/migrations/` with timestamp-prefixed filenames. Run `supabase db push` to apply, `supabase db dump --schema public` to snapshot.

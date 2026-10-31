@@ -5,6 +5,7 @@ import { resolveOrgRole, can } from "@/lib/permissions";
 import { apiError } from "@/lib/api-error";
 import { verifyCsrfOrigin } from "@/lib/csrf";
 import { logRequest } from "@/lib/logger";
+import { isValidDiscordId } from "@/lib/invites";
 import type { OrgRole } from "@/lib/permissions";
 
 export async function GET() {
@@ -38,13 +39,22 @@ export async function POST(req: NextRequest) {
 
     if (!verifyCsrfOrigin(req)) return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
 
-    const { org_role } = await req.json() as { org_role: OrgRole };
+    const { org_role, invited_discord_id } = await req.json() as {
+      org_role: OrgRole;
+      invited_discord_id?: unknown;
+    };
 
     if (org_role === "OWNER") {
       return NextResponse.json({ error: "Cannot create invite for OWNER role" }, { status: 400 });
     }
 
-    const invite = await createInvite(org_role, session.user.discordId!);
+    // Every invite is bound to the one Discord user it is for.
+    const invitedId = typeof invited_discord_id === "string" ? invited_discord_id.trim() : invited_discord_id;
+    if (!isValidDiscordId(invitedId)) {
+      return NextResponse.json({ error: "A valid Discord user ID (17-20 digits) is required" }, { status: 400 });
+    }
+
+    const invite = await createInvite(org_role, session.user.discordId!, invitedId);
 
     await appendAuditLog({
       actor_discord_id: session.user.discordId!,
@@ -52,7 +62,7 @@ export async function POST(req: NextRequest) {
       entity_type: "invite",
       entity_id: invite.id,
       before_val: null,
-      after_val: { org_role, token: invite.token },
+      after_val: { org_role, invited_discord_id: invitedId },
     });
 
     const res = NextResponse.json(invite, { status: 201 });

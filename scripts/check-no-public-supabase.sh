@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Guard against accidental promotion of SUPABASE_ANON_KEY / SUPABASE_URL to the
-# browser bundle. Imperfect's RLS policies are "FOR ALL USING (true)" on every
-# table — security is upheld ONLY by the invariant that the anon key stays
-# server-side. If NEXT_PUBLIC_SUPABASE_* ever appears in the repo, the key
-# lands in the client JS bundle and anyone on the internet gains full
-# read/write to sponsors (PII), revenue, tournaments, etc.
+# Guard against accidental promotion of Supabase keys / SUPABASE_URL to the
+# browser bundle. The server uses SUPABASE_SERVICE_ROLE_KEY, which bypasses
+# RLS: if it ever got a NEXT_PUBLIC_ prefix, anyone on the internet would get
+# full read/write to sponsors (PII), revenue, tournaments, etc. The database
+# denies the anon key (migration 20261031120100_rls_lockdown.sql), but keep
+# every Supabase variable server-only anyway.
 #
-# If you legitimately need client-side Supabase access, rewrite the RLS
-# policies with real role checks first — do NOT silence this guard.
+# If you legitimately need client-side Supabase access, add real RLS policies
+# for that table first. Do NOT silence this guard.
 #
 # Exits 0 if clean, 1 if any match is found.
 set -euo pipefail
