@@ -216,16 +216,32 @@ describe("POST /api/admin/invites", () => {
     expect(await res.json()).toMatchObject({ error: "Cannot create invite for OWNER role" });
   });
 
-  it("returns 201 on valid invite creation", async () => {
+  it.each([undefined, "", "someuser", "1234", 123456789012345678])(
+    "returns 400 when invited_discord_id is %s",
+    async (invited) => {
+      mockAuth.mockResolvedValue(ownerSession());
+      const { POST } = await import("@/app/api/admin/invites/route");
+      const res = await POST(mutReq("/api/admin/invites", "POST", { org_role: "PLAYER", invited_discord_id: invited }));
+      expect(res.status).toBe(400);
+      expect(mockCreateInvite).not.toHaveBeenCalled();
+    },
+  );
+
+  it("returns 201 on valid invite creation, bound to the Discord id", async () => {
     mockAuth.mockResolvedValue(ownerSession());
     mockCreateInvite.mockResolvedValue({ id: "inv2", token: "xyz", org_role: "CAPTAIN" });
     mockAppendAuditLog.mockResolvedValue(undefined);
     const { POST } = await import("@/app/api/admin/invites/route");
-    const res = await POST(mutReq("/api/admin/invites", "POST", { org_role: "CAPTAIN" }));
+    const res = await POST(mutReq("/api/admin/invites", "POST", {
+      org_role: "CAPTAIN",
+      invited_discord_id: " 111111111111111111 ",
+    }));
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.id).toBe("inv2");
-    expect(mockCreateInvite).toHaveBeenCalledWith("CAPTAIN", "owner123");
+    expect(mockCreateInvite).toHaveBeenCalledWith("CAPTAIN", "owner123", "111111111111111111");
+    // The secret token is not written to the audit log.
+    expect(JSON.stringify(mockAppendAuditLog.mock.calls)).not.toContain("xyz");
     expect(mockAppendAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({
         action_type: "INVITE_CREATE",

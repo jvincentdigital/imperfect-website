@@ -21,6 +21,8 @@ export default function AdminPanel({ players, invites, auditLog, assignableRoles
   const [localInvites, setLocalInvites] = useState(invites);
   const [confirmArchive, setConfirmArchive] = useState<Player | null>(null);
   const [newInviteRole, setNewInviteRole] = useState<OrgRole>("PLAYER");
+  const [newInviteDiscordId, setNewInviteDiscordId] = useState("");
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [creatingInvite, setCreatingInvite] = useState(false);
 
@@ -49,14 +51,19 @@ export default function AdminPanel({ players, invites, auditLog, assignableRoles
 
   async function handleCreateInvite() {
     setCreatingInvite(true);
+    setInviteError(null);
     const res = await fetch("/api/admin/invites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ org_role: newInviteRole }),
+      body: JSON.stringify({ org_role: newInviteRole, invited_discord_id: newInviteDiscordId.trim() }),
     });
     if (res.ok) {
       const invite = await res.json() as Invite;
       setLocalInvites((prev) => [invite, ...prev]);
+      setNewInviteDiscordId("");
+    } else {
+      const body = await res.json().catch(() => null) as { error?: string } | null;
+      setInviteError(body?.error ?? "Could not create the invite");
     }
     setCreatingInvite(false);
   }
@@ -146,13 +153,25 @@ export default function AdminPanel({ players, invites, auditLog, assignableRoles
                 <option key={r} value={r}>{roleLabels[r]}</option>
               ))}
             </select>
+            <input
+              value={newInviteDiscordId}
+              onChange={(e) => setNewInviteDiscordId(e.target.value)}
+              placeholder="Discord user ID"
+              inputMode="numeric"
+              aria-label="Discord user ID of the person this invite is for"
+              className="bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-1.5 text-sm text-white font-mono w-52 focus:outline-none focus:border-[#c5d400]/40"
+            />
             <button
               onClick={handleCreateInvite}
-              disabled={creatingInvite}
+              disabled={creatingInvite || !newInviteDiscordId.trim()}
               className="px-4 py-1.5 bg-[#c5d400] text-black text-sm font-bold rounded-lg hover:bg-[#d4e500] disabled:opacity-50 transition-colors uppercase tracking-wide"
             >
               {creatingInvite ? "Generating..." : "Generate Link"}
             </button>
+            <p className="w-full text-[11px] text-white/30">
+              Only this Discord account can use the link (Discord: Developer Mode, right-click the user, Copy User ID).
+            </p>
+            {inviteError && <p className="w-full text-xs text-red-400">{inviteError}</p>}
           </div>
 
           {localInvites.length === 0 && (
@@ -173,7 +192,7 @@ export default function AdminPanel({ players, invites, auditLog, assignableRoles
                   </div>
                   <p className="text-xs text-white/30 mt-1 font-mono truncate">{inviteUrl}</p>
                   <p className="text-[10px] text-white/20 mt-0.5">
-                    Expires: {new Date(invite.expires_at).toLocaleDateString()}
+                    For: {invite.invited_discord_id ?? "not bound (old invite, cannot be used)"} · Expires: {new Date(invite.expires_at).toLocaleDateString()}
                     {invite.used_by && ` · Used by: ${invite.used_by}`}
                   </p>
                 </div>

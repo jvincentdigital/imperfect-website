@@ -117,10 +117,8 @@ ALTER TABLE sponsors        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE revenue         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE checklist_items ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow all for anon" ON tournaments     FOR ALL USING (true);
-CREATE POLICY "Allow all for anon" ON sponsors        FOR ALL USING (true);
-CREATE POLICY "Allow all for anon" ON revenue         FOR ALL USING (true);
-CREATE POLICY "Allow all for anon" ON checklist_items FOR ALL USING (true);
+-- No policies: anon/authenticated are denied; the server uses the service
+-- role key. See supabase/migrations/20261031120100_rls_lockdown.sql.
 
 -- Seed: Merch pre-launch checklist items
 INSERT INTO checklist_items (section, label) VALUES
@@ -184,10 +182,9 @@ ALTER TABLE players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE schedule_blocks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE availability ENABLE ROW LEVEL SECURITY;
 
--- Allow service role full access (used by the app via anon key)
-CREATE POLICY "Allow all for anon" ON players FOR ALL USING (true);
-CREATE POLICY "Allow all for anon" ON schedule_blocks FOR ALL USING (true);
-CREATE POLICY "Allow all for anon" ON availability FOR ALL USING (true);
+-- No policies: every table denies anon/authenticated and the server uses
+-- the service role key (bypasses RLS). See 20261031120100_rls_lockdown.sql,
+-- which also covers the tables added by later migrations.
 
 -- ─── Performance Indexes ─────────────────────────────────────────────────────
 CREATE INDEX idx_players_division_active ON players (division) WHERE archived = false;

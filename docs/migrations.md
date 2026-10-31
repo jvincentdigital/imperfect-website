@@ -41,6 +41,9 @@ Example: `20260415120000_add_player_photo_url.sql`
 | `20260402010856_role_system.sql` | Role system — adds org_role, game, in_game_role, rank, captain_of, archived to players. Creates scrims, announcements, audit_log, invites, player_stats_override, reminders_sent tables |
 | `20260406_recurring_availability_and_scrim_applications.sql` | Recurring availability — availability_templates, availability_overrides. Scrim applications — scrim_applications table with indexes |
 | `20260407_community_teams.sql` | Community registration — community_teams, community_team_players tables with indexes |
+| `20260609120000_drop_allow_all_anon_policies.sql` | Drops the "Allow all for anon" policies |
+| `20261031120000_invites_bound_to_discord_id.sql` | Adds `invites.invited_discord_id` (invite bound to one Discord user) |
+| `20261031120100_rls_lockdown.sql` | RLS on every table, all policies dropped, anon/authenticated revoked. Apply only after the service role key is live; see `docs/database-security.md` |
 
 ## Local development
 
