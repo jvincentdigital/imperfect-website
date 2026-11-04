@@ -22,6 +22,8 @@ make unit           # Run unit tests (vitest)
 make e2e            # Run Playwright E2E tests
 ```
 
+Unit tests live in `src/lib/__tests__/` (vitest, no database or network: Supabase and auth are mocked). They cover permissions, validation, availability, the admin/players APIs, lineup rules, CSRF and rate limiting, CSV export and the Marvel Rivals stats parser.
+
 ### Database
 
 ```bash
