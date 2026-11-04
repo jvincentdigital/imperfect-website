@@ -39,6 +39,8 @@ const HERO_ROLES: Record<string, "Vanguard" | "Duelist" | "Strategist"> = {
   "emma frost": "Vanguard",
   "the thing": "Vanguard",
   ultron: "Vanguard",
+  angela: "Vanguard",
+  rogue: "Vanguard",
 
   // Duelist
   "spider-man": "Duelist",
@@ -70,6 +72,7 @@ const HERO_ROLES: Record<string, "Vanguard" | "Duelist" | "Strategist"> = {
   "black bolt": "Duelist",
   "mr. negative": "Duelist",
   taskmaster: "Duelist",
+  phoenix: "Duelist",
 
   // Strategist
   mantis: "Strategist",
@@ -187,7 +190,9 @@ export function transformApiResponse(
   // Rank info — decode from season data since rankData.rank is often "Invalid level"
   const rankData = data?.player?.rank;
   const seasons = data?.player?.info?.rank_game_season ?? {};
-  const latestSeason = Object.keys(seasons).sort().pop();
+  const latestSeason = Object.keys(seasons)
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .pop();
   const seasonData = latestSeason ? seasons[latestSeason] : null;
   const maxLevel = seasonData?.max_level ?? 0;
 

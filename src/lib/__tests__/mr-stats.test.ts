@@ -71,10 +71,8 @@ describe("transformApiResponse", () => {
     expect(rank(25).name).toBe("One Above All");
   });
 
-  // BUG (not fixed here): the latest season is picked with a plain string
-  // sort, so season "10" sorts before "9" and an older season wins. Only
-  // matters if the API's season keys can differ in length.
-  it.skip("picks the newest season even when keys have different lengths", () => {
+  // Regression: a plain string sort put season "10" before "9".
+  it("picks the newest season even when keys have different lengths", () => {
     const s = transformApiResponse("p", {
       overall_stats: { ranked: { total_matches: 1 } },
       player: { info: { rank_game_season: { "9": { max_level: 3 }, "10": { max_level: 20 } } } },
@@ -90,9 +88,8 @@ describe("mrHeroPortrait", () => {
     expect(mrHeroPortrait("Nobody")).toBeNull();
   });
 
-  // BUG (not fixed here): Phoenix, Rogue and Angela have portraits but no
-  // entry in HERO_ROLES, so their role shows as "Unknown".
-  it.skip("every hero with a portrait also has a role", () => {
+  // Regression: Phoenix, Rogue and Angela used to show role "Unknown".
+  it("every hero with a portrait also has a role", () => {
     for (const name of ["Phoenix", "Rogue", "Angela"]) {
       const s = transformApiResponse("p", { heroes_ranked: [hero(name, 1)] })!;
       expect(s.topHeroes[0].role).not.toBe("Unknown");
